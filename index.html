@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>NOTAS DE SISTEMAS INFORMÁTICOS</title>
+    <title>NOTAS DE SISTEMAS INFORMATICOS</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -30,7 +30,7 @@
             color: #3c8dbc;
         }
 
-        input[type="text"] {
+        input {
             padding: 10px;
             width: 100%;
             margin-bottom: 15px;
@@ -62,19 +62,22 @@
 <body>
 
     <div class="login-box">
-        <h2>CONSULTA DE NOTAS<br>SISTEMAS INFORMÁTICOS</h2>
-        <input type="text" id="carnet" placeholder="Ingrese su número de carnet">
-        <button onclick="buscarNotas()">Ver Notas</button>
+        <h2>CONSULTA DE NOTAS DE<br>SISTEMAS INFORMÁTICOS</h2>
+        <input type="text" id="usuario" placeholder="Usuario (Iniciales)">
+        <input type="password" id="carnet" placeholder="Contraseña (Carnet)">
+        <button onclick="buscarNotas()">Ingresar</button>
         <div id="resultado"></div>
     </div>
 
     <script>
-        const urlCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfFXcVOQTW8831a-BbxRuPkaVBRXpMd3S4gIqSKVo_5KICZHgguPDExguQZzATV54zp_wDyvwim3M5/pub?gid=0&single=true&output=csv'; // Reemplace esto con su URL CSV
+        const urlCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfFXcVOQTW8831a-BbxRuPkaVBRXpMd3S4gIqSKVo_5KICZHgguPDExguQZzATV54zp_wDyvwim3M5/pub?gid=0&single=true&output=csv'; // Pegue aquí su enlace .csv publicado
 
         async function buscarNotas() {
+            const usuarioIngresado = document.getElementById("usuario").value.trim().toLowerCase();
             const carnetIngresado = document.getElementById("carnet").value.trim();
-            if (!carnetIngresado) {
-                document.getElementById("resultado").innerHTML = "Por favor, ingrese su número de carnet.";
+
+            if (!usuarioIngresado || !carnetIngresado) {
+                document.getElementById("resultado").innerHTML = "Por favor, complete ambos campos.";
                 return;
             }
 
@@ -86,14 +89,15 @@
                 let encontrado = false;
                 for (let fila of filas) {
                     const columnas = fila.split(",");
-                    const carnet = columnas[0].trim().replace(/"/g, "");
+                    const usuario = columnas[0].trim().toLowerCase().replace(/"/g, "");
+                    const carnet = columnas[1].trim().replace(/"/g, "");
 
-                    if (carnet === carnetIngresado) {
+                    if (usuario === usuarioIngresado && carnet === carnetIngresado) {
                         const resultado = `
-                            <strong>Notas encontradas:</strong><br>
-                            Trimestre 1: ${columnas[1]}<br>
-                            Trimestre 2: ${columnas[2]}<br>
-                            Trimestre 3: ${columnas[3]}
+                            <strong>Notas encontradas para ${usuarioIngresado}:</strong><br>
+                            Trimestre 1: ${columnas[2]}<br>
+                            Trimestre 2: ${columnas[3]}<br>
+                            Trimestre 3: ${columnas[4]}
                         `;
                         document.getElementById("resultado").innerHTML = resultado;
                         encontrado = true;
@@ -102,11 +106,11 @@
                 }
 
                 if (!encontrado) {
-                    document.getElementById("resultado").innerHTML = "Carnet no encontrado.";
+                    document.getElementById("resultado").innerHTML = "Usuario o contraseña incorrectos.";
                 }
 
             } catch (error) {
-                document.getElementById("resultado").innerHTML = "Error al cargar las notas.";
+                document.getElementById("resultado").innerHTML = "Error al cargar los datos.";
                 console.error(error);
             }
         }
