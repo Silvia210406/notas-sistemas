@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Consulta de Notas</title>
+</head>
+<body>
+    <h2>Consulta de Notas de Historia</h2>
+    <input type="text" id="carnet" placeholder="Ingrese su número de carnet">
+    <button onclick="buscarNotas()">Ver Notas</button>
+
+    <div id="resultado" style="margin-top: 20px;"></div>
+
+    <script>
+        const urlCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfFXcVOQTW8831a-BbxRuPkaVBRXpMd3S4gIqSKVo_5KICZHgguPDExguQZzATV54zp_wDyvwim3M5/pub?gid=0&single=true&output=csv'; // ← Pegue su enlace CSV aquí
+
+        async function buscarNotas() {
+            const carnetIngresado = document.getElementById("carnet").value.trim();
+            const respuesta = await fetch(urlCSV);
+            const texto = await respuesta.text();
+            const filas = texto.split("\n").slice(1); // saltar encabezado
+
+            let encontrado = false;
+            for (let fila of filas) {
+                const columnas = fila.split(",");
+                const carnet = columnas[0].trim().replace(/"/g, "");
+
+                if (carnet === carnetIngresado) {
+                    const resultado = `
+                        <strong>Notas encontradas:</strong><br>
+                        Trimestre 1: ${columnas[1]}<br>
+                        Trimestre 2: ${columnas[2]}<br>
+                        Trimestre 3: ${columnas[3]}
+                    `;
+                    document.getElementById("resultado").innerHTML = resultado;
+                    encontrado = true;
+                    break;
+                }
+            }
+
+            if (!encontrado) {
+                document.getElementById("resultado").innerHTML = "Carnet no encontrado.";
+            }
+        }
+    </script>
+</body>
+</html>
