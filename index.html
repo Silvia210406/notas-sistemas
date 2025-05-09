@@ -1,46 +1,116 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Consulta de Notas</title>
+    <meta charset="UTF-8">
+    <title>NOTAS DE SISTEMAS INFORMÁTICOS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #3c8dbc, #6cc6cb);
+            color: #333;
+            display: flex;
+            height: 100vh;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+
+        .login-box {
+            background: #fff;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-box h2 {
+            margin-bottom: 20px;
+            color: #3c8dbc;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 100%;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #3c8dbc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #337ab7;
+        }
+
+        #resultado {
+            margin-top: 20px;
+            font-size: 16px;
+        }
+    </style>
 </head>
 <body>
-    <h2>Consulta de Notas de Historia</h2>
-    <input type="text" id="carnet" placeholder="Ingrese su número de carnet">
-    <button onclick="buscarNotas()">Ver Notas</button>
 
-    <div id="resultado" style="margin-top: 20px;"></div>
+    <div class="login-box">
+        <h2>Consulta de Notas<br>Historia</h2>
+        <input type="text" id="carnet" placeholder="Ingrese su número de carnet">
+        <button onclick="buscarNotas()">Ver Notas</button>
+        <div id="resultado"></div>
+    </div>
 
     <script>
-        const urlCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfFXcVOQTW8831a-BbxRuPkaVBRXpMd3S4gIqSKVo_5KICZHgguPDExguQZzATV54zp_wDyvwim3M5/pub?gid=0&single=true&output=csv'; // ← Pegue su enlace CSV aquí
+        const urlCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQfFXcVOQTW8831a-BbxRuPkaVBRXpMd3S4gIqSKVo_5KICZHgguPDExguQZzATV54zp_wDyvwim3M5/pub?gid=0&single=true&output=csv'; // Reemplace esto con su URL CSV
 
         async function buscarNotas() {
             const carnetIngresado = document.getElementById("carnet").value.trim();
-            const respuesta = await fetch(urlCSV);
-            const texto = await respuesta.text();
-            const filas = texto.split("\n").slice(1); // saltar encabezado
-
-            let encontrado = false;
-            for (let fila of filas) {
-                const columnas = fila.split(",");
-                const carnet = columnas[0].trim().replace(/"/g, "");
-
-                if (carnet === carnetIngresado) {
-                    const resultado = `
-                        <strong>Notas encontradas:</strong><br>
-                        Trimestre 1: ${columnas[1]}<br>
-                        Trimestre 2: ${columnas[2]}<br>
-                        Trimestre 3: ${columnas[3]}
-                    `;
-                    document.getElementById("resultado").innerHTML = resultado;
-                    encontrado = true;
-                    break;
-                }
+            if (!carnetIngresado) {
+                document.getElementById("resultado").innerHTML = "Por favor, ingrese su número de carnet.";
+                return;
             }
 
-            if (!encontrado) {
-                document.getElementById("resultado").innerHTML = "Carnet no encontrado.";
+            try {
+                const respuesta = await fetch(urlCSV);
+                const texto = await respuesta.text();
+                const filas = texto.split("\n").slice(1); // omitir encabezado
+
+                let encontrado = false;
+                for (let fila of filas) {
+                    const columnas = fila.split(",");
+                    const carnet = columnas[0].trim().replace(/"/g, "");
+
+                    if (carnet === carnetIngresado) {
+                        const resultado = `
+                            <strong>Notas encontradas:</strong><br>
+                            Trimestre 1: ${columnas[1]}<br>
+                            Trimestre 2: ${columnas[2]}<br>
+                            Trimestre 3: ${columnas[3]}
+                        `;
+                        document.getElementById("resultado").innerHTML = resultado;
+                        encontrado = true;
+                        break;
+                    }
+                }
+
+                if (!encontrado) {
+                    document.getElementById("resultado").innerHTML = "Carnet no encontrado.";
+                }
+
+            } catch (error) {
+                document.getElementById("resultado").innerHTML = "Error al cargar las notas.";
+                console.error(error);
             }
         }
     </script>
+
 </body>
 </html>
